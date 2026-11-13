@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Philippine Pop Culture Chronicles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --spotify-green: #1db954;
+            --bg-dark: #0a0a0a;
+            --bg-panel: #121212;
+            --bg-hover: #282828;
+            --text-main: #ffffff;
+            --text-sub: #b3b3b3;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Layout */
+        .app-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 90px);
+        }
+        .sidebar {
+            width: 260px;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 24px 15px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            z-index: 10;
+        }
+        .main-view {
+            flex: 1;
+            background: linear-gradient(to bottom, #3f3f3f 0%, var(--bg-dark) 100%);
+            overflow-y: auto;
+            padding: 50px;
+            transition: background 1s ease;
+        }
+        
+        /* Sidebar Elements */
+        .brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            padding-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-item {
+            padding: 14px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-sub);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover {
+            color: var(--text-main);
+            background-color: rgba(255,255,255,0.05);
+        }
+        .nav-item.active {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--text-main);
+            box-shadow: inset 4px 0 0 var(--spotify-green);
+        }
+        .nav-item.active i {
+            color: var(--spotify-green);
+        }
+
+        /* Header / Hero Section */
+        .hero {
+            display: flex;
+            align-items: flex-end;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        .album-art {
+            width: 220px;
+            height: 220px;
+            background-color: #222;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border-radius: 12px;
+            object-fit: cover;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .album-art:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+        .hero-info h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0 0 12px 0;
+            color: rgba(255,255,255,0.8);
+        }
+        .hero-info h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            margin: 0 0 15px 0;
+            line-height: 1;
+            letter-spacing: -2px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .hero-info p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Transcript / Voiceover Box */
+        .voiceover-box {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            border-left: 5px solid var(--spotify-green);
+            padding: 30px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 50px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .voiceover-box h3 {
+            margin: 0 0 15px 0;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .voiceover-text {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            font-style: italic;
+            color: #eaeaea;
+        }
+
+        /* Matrix Data Grid (Glassmorphism) */
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            padding-bottom: 60px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-8px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--spotify-green);
+            font-size: 1.3rem;
+            box-shadow: inset 0 0 10px rgba(29, 185, 84, 0.2);
+        }
+        .card h4 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        .card p {
+            color: var(--text-sub);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Bottom Player */
+        .player {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 90px;
+            background-color: #000000;
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        .now-playing {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 30%;
+        }
+        .mini-art {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .track-info h4 {
+            margin: 0 0 6px 0;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        .track-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+        .playback-buttons {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 10px;
+        }
+        .playback-buttons i {
+            color: var(--text-sub);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .playback-buttons i:hover { color: #fff; }
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000 !important;
+            padding-left: 3px;
+            transition: transform 0.2s ease;
+        }
+        .play-btn:hover { transform: scale(1.1); }
+        .progress-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+        .progress-line {
+            flex: 1;
+            height: 5px;
+            background: #4d4d4d;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+        .progress-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: var(--text-main);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+        .progress-line:hover .progress-fill {
+            background: var(--spotify-green);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hidden Audio Element -->
+    <audio id="audioPlayer" src=""></audio>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-building-columns"></i> Gen Z Museum
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item active" onclick="loadExhibit(0)">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span>Intro: The Lobby</span>
+                </li>
+                <li class="nav-item" onclick="loadExhibit(1)">
+                    <i class="fa-solid fa-backward-fast"></i>
+                    <span>Gallery 1: The 2010s</span>
+                </li>
+                <li class="nav-item" onclick="loadExhibit(2)">
+                    <i class="fa-solid fa-pause"></i>
+                    <span>Gallery 2: The 2020s</span>
+                </li>
+                <li class="nav-item" onclick="loadExhibit(3)">
+                    <i class="fa-solid fa-forward-fast"></i>
+                    <span>Gallery 3: The 2030s</span>
+                </li>
+                <li class="nav-item" onclick="loadExhibit(4)">
+                    <i class="fa-solid fa-compact-disc"></i>
+                    <span>The Impact</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-view" id="mainView">
+            <div class="hero">
+                <img src="" alt="Album Art" class="album-art" id="heroImage">
+                <div class="hero-info">
+                    <h2 id="heroLabel">Exhibition</h2>
+                    <h1 id="heroTitle">Title</h1>
+                    <p id="heroSubtitle">Subtitle</p>
+                </div>
+            </div>
+
+            <div class="voiceover-box">
+                <h3><i class="fa-solid fa-podcast"></i> Voiceover Guide Script</h3>
+                <div class="voiceover-text" id="transcriptText">Transcript goes here...</div>
+            </div>
+
+            <h2 class="section-title" id="matrixTitle">Analytical Matrix Highlights</h2>
+            <div class="matrix-grid" id="matrixGrid">
+                <!-- Cards injected via JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Media Player Bar -->
+    <div class="player">
+        <div class="now-playing">
+            <img src="" alt="Thumbnail" class="mini-art" id="miniImage">
+            <div class="track-info">
+                <h4 id="miniTitle">Title</h4>
+                <p id="miniSubtitle">Subtitle</p>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="playback-buttons">
+                <i class="fa-solid fa-shuffle"></i>
+                <i class="fa-solid fa-backward-step" onclick="prevTrack()"></i>
+                <div class="play-btn" onclick="togglePlay()"><i class="fa-solid fa-play" id="playIcon"></i></div>
+                <i class="fa-solid fa-forward-step" onclick="nextTrack()"></i>
+                <i class="fa-solid fa-repeat"></i>
+            </div>
+            <div class="progress-bar">
+                <span id="currentTime">0:00</span>
+                <div class="progress-line" id="progressLine" onclick="seekAudio(event)">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+        
+        <div style="width: 30%;"></div>
+    </div>
+
+    <script>
+        // Data structure with reliable Pexels images and working Audio
+        const exhibits = [
+            {
+                id: 'lobby',
+                label: 'The Lobby',
+                title: 'Building The Pop',
+                subtitle: 'The Philippine Pop Culture Chronicles',
+                gradient: 'linear-gradient(to bottom, #2b2b2b 0%, #0a0a0a 100%)',
+                image: 'https://images.pexels.com/photos/20967/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800', 
+                audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                transcript: '"Welcome to the final wing of the Filipino Gen Z Museum. Today, we aren\'t just looking back; we are tracking the timeline of our generation. From the crowded physical spaces of our childhoods to the isolated screens of today, and finally, into the AI-driven world of tomorrow. Let’s walk through the past, present, and future of Philippine Pop Culture."',
+                cards: []
+            },
+            {
+                id: '2010s',
+                label: 'Gallery 1',
+                title: 'The 2010s',
+                subtitle: 'The Age of Transition',
+                gradient: 'linear-gradient(to bottom, #591b1b 0%, #0a0a0a 100%)',
+                image: 'https://images.pexels.com/photos/1093126/pexels-photo-1093126.jpeg?auto=compress&cs=tinysrgb&w=800',
+                audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                transcript: '"Our journey starts in the 2010s. This was the era of \'transitional connectivity.\' We socialized in physical spaces to access digital worlds. We dropped one-peso coins into neighborhood Pisonets, and we gathered in massive physical mall crowds to support TV love teams like Melason and AlDub. Economically, the BPO graveyard shift shaped our cities... It was a messy, loud, and collective era."',
+                cards: [
+                    { icon: 'fa-users', title: 'Social', text: 'Rise of early social media platforms bridging physical and digital friendships. Neighborhood Pisonets acting as physical community hubs for youth.' },
+                    { icon: 'fa-briefcase', title: 'Economic', text: 'The boom of the 24/7 BPO/call center industry shaped nocturnal city economies. Centralized 24/7 labor hubs drove physical night-time economies.' },
+                    { icon: 'fa-landmark', title: 'Political', text: 'The first highly digitized and social-media-driven national elections. Democratized access to political information and memes via internet cafes.' },
+                    { icon: 'fa-masks-theater', title: 'Cultural', text: 'The peak of traditional TV monoculture and imported Western/Korean trends. Traditional TV Love Teams dominating all forms of mass media.' },
+                    { icon: 'fa-leaf', title: 'Environmental', text: 'Rapid expansion of 24/7 convenience culture and fast fashion. High localized energy consumption from rows of PCs running 24/7 in Pisonets.' },
+                    { icon: 'fa-heart-pulse', title: 'Others (Health)', text: 'Mental health remained heavily stigmatized. Severe sleep deprivation and poor diets normalized for BPO graveyard shift workers.' }
+                ]
+            },
+            {
+                id: '2020s',
+                label: 'Gallery 2',
+                title: 'The 2020s',
+                subtitle: 'The Era of Hyper-Isolation',
+                gradient: 'linear-gradient(to bottom, #103b54 0%, #0a0a0a 100%)',
+                image: 'https://images.pexels.com/photos/4151871/pexels-photo-4151871.jpeg?auto=compress&cs=tinysrgb&w=800',
+                audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+                transcript: '"Fast forward to the 2020s. The physical tambayans of our youth are gone, replaced by hyper-connected digital isolation. We now socialize through Discord and TikTok feeds. The grueling BPO commutes evolved into the Gig Economy and WFH setups, decentralizing our labor but causing massive residential energy strain. But there is a silver lining: P-Pop has risen as a glocalized force, and our generation is actively pushing for mental health boundaries."',
+                cards: [
+                    { icon: 'fa-users', title: 'Social', text: 'Hyper-connected digital isolation where socialization is almost entirely screen-based. Curated "trauma dumping" and seeking validation on TikTok.' },
+                    { icon: 'fa-briefcase', title: 'Economic', text: 'The rise of the digital Gig Economy, remote freelancing, and digital nomadism. App-based food and grocery delivery serving the WFH market.' },
+                    { icon: 'fa-landmark', title: 'Political', text: 'Extreme political polarization driven by algorithmic echo chambers. Fandom tactics weaponized for political campaigns and troll farms.' },
+                    { icon: 'fa-masks-theater', title: 'Cultural', text: 'The rise of P-Pop (Philippine Pop). Globalized TikTok trends instantly shaping local Filipino humor and slang.' },
+                    { icon: 'fa-leaf', title: 'Environmental', text: 'E-commerce packaging waste and the carbon footprint of heavy data usage. Massive, unseen energy consumption of data centers.' },
+                    { icon: 'fa-heart-pulse', title: 'Others (Health)', text: 'Mainstream mental health awareness. Clinical recognition of Gen Z anxiety, depression, and neurodivergence.' }
+                ]
+            },
+            {
+                id: '2030s',
+                label: 'Gallery 3',
+                title: 'The 2030s',
+                subtitle: 'The Digital Renaissance',
+                gradient: 'linear-gradient(to bottom, #174a2b 0%, #0a0a0a 100%)',
+                image: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800',
+                audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+                transcript: '"And now, we project into 2030. The extreme isolation of the 2020s triggered a massive cultural counter-movement. By 2030, we see the deliberate return of the physical tambayan—premium, tech-free spaces to detox from screens. Technology is smarter: Universal 6G turns homes into AI-augmented micro-offices, protected by strict \'right to disconnect\' laws. Culturally, the Philippines is a dominant global exporter via immersive P-Pop VR concerts."',
+                cards: [
+                    { icon: 'fa-users', title: 'Social (2030)', text: 'A cultural shift toward intentional "digital detox" and the rise of premium, tech-free physical community spaces to combat isolation.' },
+                    { icon: 'fa-briefcase', title: 'Economic (2030)', text: 'Widespread integration of AI in the gig economy. Universal, ultra-fast 6G internet transforming households into AI-augmented micro-offices.' },
+                    { icon: 'fa-landmark', title: 'Political (2030)', text: 'Elections contested through AI deepfakes, prompting strict digital identity verification and algorithmic regulation.' },
+                    { icon: 'fa-masks-theater', title: 'Cultural (2030)', text: 'P-Pop fully establishes itself as a mainstream global cultural export, heavily influencing international music, dance, and fashion.' },
+                    { icon: 'fa-leaf', title: 'Environmental (2030)', text: 'Strict government mandates on circular economies, sustainable e-commerce packaging, and green energy compliance for tech.' },
+                    { icon: 'fa-heart-pulse', title: 'Others (Health) (2030)', text: 'Digital disconnection and "right to disconnect" laws become standard. Widespread use of AI-assisted therapy.' }
+                ]
+            },
+            {
+                id: 'impact',
+                label: 'Conclusion',
+                title: 'The Impact',
+                subtitle: 'The Evolution of Connection',
+                gradient: 'linear-gradient(to bottom, #392b57 0%, #0a0a0a 100%)',
+                image: 'https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=800',
+                audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+                transcript: '"Looking at the persisting patterns, the ultimate impact is clear. The 2010s taught us how to connect globally, but at the cost of our physical well-being. The 2020s gave us total convenience, but at the cost of our communities and environment. By 2030, Philippine pop culture will find its balance, mastering AI and global exportation while fiercely protecting our offline humanity."',
+                cards: [
+                    { icon: 'fa-arrow-right', title: 'Past to Present', text: 'The 2010s Pisonet and BPO boom proved we could sustain globalized connectivity, paving the exact pathway for today\'s WFH remote setup and isolated digital living.' },
+                    { icon: 'fa-rocket', title: 'Present to Future', text: 'The weaponized digital propaganda and severe screen fatigue of the 2020s will force a major regulatory overhaul by 2030—legally enforcing digital IDs, sustainability, and mental health boundaries.' }
+                ]
+            }
+        ];
+
+        let currentIndex = 0;
+        let isPlaying = false;
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playIcon = document.getElementById('playIcon');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+
+        function loadExhibit(index) {
+            currentIndex = index;
+            const data = exhibits[index];
+            
+            // Update Sidebar Navigation
+            document.querySelectorAll('.nav-item').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+
+            // Update Main Content Background
+            document.getElementById('mainView').style.background = data.gradient;
+            
+            // Update Hero Content
+            document.getElementById('heroImage').src = data.image;
+            document.getElementById('heroLabel').innerText = data.label;
+            document.getElementById('heroTitle').innerText = data.title;
+            document.getElementById('heroSubtitle').innerText = data.subtitle;
+            document.getElementById('transcriptText').innerText = data.transcript;
+
+            // Render Matrix Cards
+            const grid = document.getElementById('matrixGrid');
+            const matrixTitle = document.getElementById('matrixTitle');
+            grid.innerHTML = '';
+            
+            if (data.cards.length > 0) {
+                matrixTitle.style.display = 'block';
+                data.cards.forEach(card => {
+                    grid.innerHTML += `
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon"><i class="fa-solid ${card.icon}"></i></div>
+                                <h4>${card.title}</h4>
+                            </div>
+                            <p>${card.text}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                matrixTitle.style.display = 'none';
+            }
+
+            // Update Player Bar
+            document.getElementById('miniImage').src = data.image;
+            document.getElementById('miniTitle').innerText = data.title;
+            document.getElementById('miniSubtitle').innerText = data.label;
+
+            // Load and play audio
+            audioPlayer.src = data.audio;
+            if (isPlaying) {
+                audioPlayer.play();
+            }
+        }
+
+        function togglePlay() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+                isPlaying = true;
+            } else {
+                audioPlayer.pause();
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+                isPlaying = false;
+            }
+        }
+
+        function prevTrack() {
+            if (currentIndex > 0) loadExhibit(currentIndex - 1);
+        }
+
+        function nextTrack() {
+            if (currentIndex < exhibits.length - 1) loadExhibit(currentIndex + 1);
+        }
+
+        // Format seconds into M:SS
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update progress bar as audio plays
+        audioPlayer.addEventListener('timeupdate', () => {
+            const current = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+            
+            if (duration) {
+                const percent = (current / duration) * 100;
+                progressFill.style.width = percent + '%';
+                currentTimeEl.innerText = formatTime(current);
+            }
+        });
+
+        // Update total time when audio metadata loads
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            totalTimeEl.innerText = formatTime(audioPlayer.duration);
+        });
+
+        // Automatically play next track when current one ends
+        audioPlayer.addEventListener('ended', () => {
+            if (currentIndex < exhibits.length - 1) {
+                nextTrack();
+            } else {
+                isPlaying = false;
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+            }
+        });
+
+        // Allow clicking on progress bar to seek
+        function seekAudio(event) {
+            const line = document.getElementById('progressLine');
+            const rect = line.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const percent = clickX / rect.width;
+            
+            if (audioPlayer.duration) {
+                audioPlayer.currentTime = percent * audioPlayer.duration;
+            }
+        }
+
+        // Initialize first exhibit
+        loadExhibit(0);
+    </script>
+</body>
+</html>
